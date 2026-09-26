@@ -116,3 +116,5 @@ Review the image changes and commit the PNG and JSON files together. Baseline-re
 Open-ended exploration, approval of business rules, and subjective design review still require a person. None are reported as automated passes merely because the placeholder skips were replaced.
 
 The local `docs/` folder is intentionally excluded from Git. Empty-cart checkout is marked `observed_baseline`: it currently reaches an empty overview with $0 totals. This detects behavioral changes without claiming that empty checkout is the intended business rule. The test cancels at overview and does not test finishing an empty order. About navigation is checked with the external destination response stubbed; social links are checked by URL, not by visiting them. These checks do not validate external site availability or content.
+
+[![GitHub Actions Playwright tests](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml)
