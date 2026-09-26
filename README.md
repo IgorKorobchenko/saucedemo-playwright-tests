@@ -55,11 +55,15 @@ Use a quoted node ID copied from `--collect-only` to select one parameter variat
 
 ## GitHub Actions
 
-The `Playwright tests` workflow runs functional tests on pushes to `main`, pull requests targeting `main`, and manual runs from the repository's **Actions** tab. It uses Python 3.12 and the official Playwright `v1.63.0-noble` Linux container, following [Playwright's CI guidance](https://playwright.dev/python/docs/ci). Keep the container version in both workflows aligned with `requirements.txt` when upgrading Playwright.
+The `Playwright tests` workflow runs all 69 nonvisual tests (including smoke scenarios) on pushes to `main`, pull requests targeting `main`, and manual runs from the repository's **Actions** tab. It uses Python 3.12 and the official Playwright `v1.63.0-noble` Linux container, following [Playwright's CI guidance](https://playwright.dev/python/docs/ci). Keep the container version in both workflows aligned with `requirements.txt` when upgrading Playwright.
 
 Download `functional-results` from a run's **Artifacts** section for JUnit XML, evidence captures, and failure screenshots/traces. Artifacts are retained for 14 days, including when tests fail. Open a downloaded trace with `.venv/bin/python -m playwright show-trace path/to/trace.zip`. Failed tests fail the workflow; there are no automatic retries or baseline updates. A newer run cancels an older run for the same branch/PR. No repository secrets are required for the public demo.
 
 `Record visual baselines` is a separate manual workflow for generating Linux PNG/JSON files in the same container. Download `linux-visual-baselines`, inspect every image, and copy its environment directory into `tests/visual_baselines/` before committing. Recording is not a visual comparison or design approval. This workflow has read-only permissions and cannot commit baseline updates.
+
+The seven visual comparisons currently run locally using the committed macOS baselines. They are explicitly excluded from the Linux functional job; Linux baselines still need to be recorded and reviewed. After adding them, enable visual comparisons in the main workflow by removing `-m "not visual"` from its pytest command. Never add `--update-visual-baselines` to the normal CI run.
+
+First-time activation: push these workflow files to GitHub. If HTTPS push reports a missing `workflow` scope, update the saved classic Personal Access Token's permissions in GitHub settings, then retry `git push origin main`. Once pushed, open **Actions → Playwright tests** to inspect the automatic run. Use **Actions → Record visual baselines → Run workflow** for the one-time Linux baseline setup above.
 
 This repository delivers automated test results; it has no application to deploy. Branch protection is a separate repository setting: select the CI checks as required checks if you want to block merging failed pull requests.
 
