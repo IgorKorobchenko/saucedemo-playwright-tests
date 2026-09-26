@@ -47,11 +47,3 @@ def test_capture_primary_pages(login, page, capture_page):
     inventory.header.open_cart()
     cart.expect_loaded()
     expect(cart.items).to_have_count(0)
-
-
-@pytest.mark.evidence
-@pytest.mark.p3
-@pytest.mark.manual_script("MT-008")
-@pytest.mark.skip(reason="Approved design/copy or image baselines are not supplied. Captured screenshots require human review before visual pass/fail automation.")
-def test_visual_approval_requires_baseline():
-    """A screenshot capture alone cannot establish visual correctness."""

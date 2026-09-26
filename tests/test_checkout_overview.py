@@ -4,6 +4,7 @@ import pytest
 from playwright.sync_api import expect
 
 from pages.inventory_page import InventoryPage
+from test_data.products import PRODUCTS
 
 pytestmark = pytest.mark.regression
 
@@ -31,3 +32,13 @@ def test_cancel_returns_to_products_with_item(checkout_overview, page):
     inventory.expect_loaded()
     inventory.expect_added("Sauce Labs Backpack")
     inventory.header.expect_count(1)
+
+
+@pytest.mark.p2
+@pytest.mark.coverage_gap("G06")
+@pytest.mark.coverage_gap("G08")
+@pytest.mark.manual_script("MT-008")
+def test_overview_details_and_summary_sections(checkout_overview):
+    checkout_overview.expect_item_details(PRODUCTS[0])
+    checkout_overview.expect_summary_information()
+    checkout_overview.expect_common_layout()

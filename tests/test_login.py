@@ -53,3 +53,14 @@ def test_surrounding_whitespace_is_not_trimmed(login, page, username, password):
     login.expect_error("Epic sadface: Username and password do not match any user in this service")
     login.login("standard_user", "secret_sauce")
     InventoryPage(page).expect_loaded()
+
+
+@pytest.mark.p2
+@pytest.mark.coverage_gap("G03")
+@pytest.mark.manual_script("MT-004")
+@pytest.mark.parametrize("password", ["secret_sauce", "BABBA"], ids=["unknown-user", "both-invalid"])
+def test_unknown_username_is_rejected_with_recovery(login, page, password):
+    login.login("ABBA", password)
+    login.expect_error("Epic sadface: Username and password do not match any user in this service")
+    login.login("standard_user", "secret_sauce")
+    InventoryPage(page).expect_loaded()

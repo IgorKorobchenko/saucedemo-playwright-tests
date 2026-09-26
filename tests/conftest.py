@@ -13,6 +13,32 @@ from pages.checkout_information_page import CheckoutInformationPage
 from pages.checkout_overview_page import CheckoutOverviewPage
 from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
+from test_data.products import PRODUCTS
+
+
+def pytest_addoption(parser):
+    parser.addoption("--update-visual-baselines", action="store_true", default=False,
+                     help="Explicitly record current screenshots as visual regression baselines")
+
+
+@pytest.fixture
+def visual_check(page, browser, pytestconfig, output_path):
+    from support.visual import assert_visual_baseline
+
+    def check(name: str):
+        assert_visual_baseline(
+            page, browser, name,
+            Path(pytestconfig.rootpath) / "tests" / "visual_baselines",
+            Path(output_path),
+            update=pytestconfig.getoption("--update-visual-baselines"),
+        )
+
+    return check
+
+
+@pytest.fixture(params=PRODUCTS, ids=lambda product: product["name"])
+def product(request):
+    return request.param
 
 
 @pytest.fixture(scope="session", autouse=True)

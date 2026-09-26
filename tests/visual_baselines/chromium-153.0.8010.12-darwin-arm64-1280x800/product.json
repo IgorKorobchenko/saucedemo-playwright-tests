@@ -1,0 +1,16 @@
+{
+  "captured_at_utc": "2026-09-25T18:18:51.614432+00:00",
+  "url": "https://www.saucedemo.com/inventory-item.html?id=4",
+  "browser": "chromium",
+  "browser_version": "153.0.8010.12",
+  "os": "Darwin",
+  "architecture": "arm64",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "device_scale_factor": 1,
+  "color_scheme": "light",
+  "locale": "en-US",
+  "baseline_type": "Observed appearance; not design approval"
+}

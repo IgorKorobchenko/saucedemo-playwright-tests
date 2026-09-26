@@ -1,0 +1,42 @@
+name: Record visual baselines
+
+# Manual recording only. Review the downloaded PNG/JSON files before committing.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    name: Record Linux Chromium baselines
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Record observed appearance (not a comparison run)
+        run: python -m pytest -m visual --update-visual-baselines -v --output artifacts/recording --junitxml=artifacts/recording.xml
+      - name: Upload Linux baselines for review
+        uses: actions/upload-artifact@v5
+        with:
+          name: linux-visual-baselines
+          path: tests/visual_baselines/*-linux-*/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Upload recording diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: baseline-recording-results
+          path: artifacts/
+          retention-days: 14

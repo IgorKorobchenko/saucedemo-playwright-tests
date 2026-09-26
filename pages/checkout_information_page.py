@@ -17,12 +17,18 @@ class CheckoutInformationPage(BasePage):
 
     def expect_loaded(self):
         self.expect_path("checkout-step-one.html")
+        expect(self.page.get_by_test_id("title")).to_have_text("Checkout: Your Information")
         expect(self.first_name).to_be_visible()
 
     def fill(self, first_name: str, last_name: str, postal_code: str):
         self.first_name.fill(first_name)
         self.last_name.fill(last_name)
         self.postal_code.fill(postal_code)
+
+    def expect_values(self, first_name: str, last_name: str, postal_code: str):
+        expect(self.first_name).to_have_value(first_name)
+        expect(self.last_name).to_have_value(last_name)
+        expect(self.postal_code).to_have_value(postal_code)
 
     def continue_checkout(self):
         self.continue_button.click()

@@ -16,6 +16,7 @@ class CheckoutCompletePage(BasePage):
 
     def expect_loaded(self):
         self.expect_path("checkout-complete.html")
+        expect(self.page.get_by_test_id("title")).to_have_text("Checkout: Complete!")
         expect(self.message).to_have_text("Thank you for your order!")
 
     def back_home(self):
