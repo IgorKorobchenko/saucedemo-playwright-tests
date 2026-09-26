@@ -1,6 +1,9 @@
 # SauceDemo UI tests
 
-[![Playwright tests](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml)
+**Main:** [![Main CI status](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml/badge.svg?branch=main&event=push)](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml?query=branch%3Amain+event%3Apush)
+**Pull requests:** [![Pull request CI status](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml/badge.svg?event=pull_request)](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml?query=event%3Apull_request)
+
+These live GitHub badges show workflow results, not a hardcoded status. Main tracks push runs on `main`; Pull requests tracks the latest pull-request run across branches. For an individual PR, check its **Checks** tab. Main will show a result after the workflow is merged and runs on `main`. Click either badge to open the corresponding runs. GitHub may briefly cache badge updates. See [GitHub's status badge documentation](https://docs.github.com/en/actions/how-tos/monitor-workflows/add-a-status-badge).
 
 Python 3.12, pytest, and Playwright with one page object and one functional test file per application page. Page objects own locators and reusable interactions; tests own scenarios and assertions. Shared header and footer behavior lives in components. This follows the structure described in [Playwright's POM guide](https://playwright.dev/docs/pom) and its [Python example](https://playwright.dev/python/docs/pom).
 
