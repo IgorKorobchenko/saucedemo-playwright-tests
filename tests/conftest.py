@@ -14,6 +14,19 @@ from pages.checkout_overview_page import CheckoutOverviewPage
 from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
 from test_data.products import PRODUCTS
+from support.report_charts import REPORTS, render_charts
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    report = yield
+    item.config.stash.setdefault(REPORTS, []).append(report)
+    return report
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_html_results_summary(prefix, summary, postfix, session):
+    prefix.append(render_charts(session.config.stash.get(REPORTS, [])))
 
 
 def pytest_addoption(parser):

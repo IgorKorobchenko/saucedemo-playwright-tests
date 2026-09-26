@@ -91,6 +91,12 @@ This repository delivers automated test results; it has no application to deploy
 
 ## Reports and limitations
 
+Every normal pytest run generates a self-contained HTML report at `artifacts/report.html`. At the end of the terminal output, `Generated html report: file:///.../artifacts/report.html` links to the report. Open that URL in your browser to see results, durations, and failure details. Each run replaces this report; use `--html=artifacts/my-run.html` to keep a separate report. Install the updated `requirements.txt` before running tests.
+
+The report includes an outcome distribution chart, pass percentage, and horizontal bars for the 10 slowest tests (including setup and teardown). Each executed test is counted once; setup/teardown errors override a passing test body. Charts describe the whole run and do not change when filtering the results table. They work offline without external chart libraries.
+
+GitHub Actions includes the HTML report in the `functional-results` artifact. Download and extract that artifact, then open `report.html`; the `file://` URL printed in CI refers to the runner's filesystem, not a public website. Screenshots and traces remain separate files in the artifact.
+
 Latest local verification (2026-09-25): **76 passed, 0 skipped in 70.18 seconds**, including normal visual comparisons without baseline updates. Command: `.venv/bin/python -m pytest -q --output artifacts/no-skips --junitxml=artifacts/no-skips.xml`. This supersedes the earlier 64-passed/two-skipped report.
 
 Failure screenshots and traces are saved under `test-results/` by default. Each new run clears its configured Playwright output directory. Use `--output test-results/<run-name>` to keep separate runs. Evidence JSON/PNG files are saved per test even when the evidence-capture tests pass. These screenshots are observations, not approved visual baselines. PDF download checks verify a successful download, filename convention, and PDF signature, not receipt content/layout.
