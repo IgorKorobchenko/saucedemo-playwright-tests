@@ -44,3 +44,19 @@ class InventoryPage(BasePage):
     def expect_added(self, name: str):
         expect(self.item(name).get_by_role("button", name="Remove", exact=True)).to_be_visible()
         expect(self.item(name).get_by_role("button", name="Add to cart", exact=True)).to_have_count(0)
+
+    def expect_available(self, name: str):
+        expect(self.item(name).get_by_role("button", name="Add to cart", exact=True)).to_be_visible()
+        expect(self.item(name).get_by_role("button", name="Remove", exact=True)).to_have_count(0)
+
+    def expect_product_card(self, product: dict):
+        row = self.item(product["name"])
+        expect(row).to_have_count(1)
+        expect(row.get_by_test_id("inventory-item-name")).to_have_text(product["name"])
+        expect(row.get_by_test_id("inventory-item-desc")).to_have_text(product["description"])
+        expect(row.get_by_test_id("inventory-item-price")).to_have_text(product["price"])
+        image = row.get_by_role("img", name=product["alt"], exact=True)
+        expect(image).to_be_visible()
+        expect(image).to_have_js_property("complete", True)
+        assert image.evaluate("image => image.naturalWidth > 0"), f"Broken product image: {product['name']}"
+        self.expect_available(product["name"])

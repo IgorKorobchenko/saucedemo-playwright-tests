@@ -6,15 +6,17 @@ from pages.product_page import ProductPage
 pytestmark = [pytest.mark.regression, pytest.mark.p2, pytest.mark.manual_script("MT-002")]
 
 
-def test_product_details_match_inventory(inventory, page):
-    name = "Sauce Labs Backpack"
+@pytest.mark.coverage_gap("G05")
+def test_product_details_match_inventory(inventory, page, product):
+    name = product["name"]
     price, description = inventory.product_details(name)
     inventory.open_product(name)
-    product = ProductPage(page)
-    product.expect_loaded(name)
-    expect(product.price).to_have_text(price)
-    expect(product.description).to_have_text(description)
-    product.back()
+    details = ProductPage(page)
+    details.expect_loaded(name)
+    expect(details.price).to_have_text(price)
+    expect(details.description).to_have_text(description)
+    details.expect_common_layout()
+    details.back()
     inventory.expect_loaded()
 
 

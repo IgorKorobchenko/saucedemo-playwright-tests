@@ -1,6 +1,8 @@
 # SauceDemo UI tests
 
-Python 3.12, pytest, and Playwright with one page object and one functional test file per application page. Page objects own locators and reusable interactions; tests own scenarios and assertions. Shared header behavior is a composed component. This follows the structure described in [Playwright's POM guide](https://playwright.dev/docs/pom) and its [Python example](https://playwright.dev/python/docs/pom).
+[![Playwright tests](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml/badge.svg)](https://github.com/IgorKorobchenko/saucedemo-playwright-tests/actions/workflows/playwright.yml)
+
+Python 3.12, pytest, and Playwright with one page object and one functional test file per application page. Page objects own locators and reusable interactions; tests own scenarios and assertions. Shared header and footer behavior lives in components. This follows the structure described in [Playwright's POM guide](https://playwright.dev/docs/pom) and its [Python example](https://playwright.dev/python/docs/pom).
 
 ## Setup
 
@@ -30,6 +32,15 @@ The suite accesses the live public demo at `https://www.saucedemo.com`. It uses 
 .venv/bin/python -m pytest -m smoke -v
 .venv/bin/python -m pytest -m regression -v
 
+# Scenarios added from the old-framework coverage comparison
+.venv/bin/python -m pytest -m coverage_gap -v
+
+# Exclude observed baselines (empty cart, sampled inputs, current screenshots)
+.venv/bin/python -m pytest -m 'regression and not observed_baseline' -v
+
+# Visual comparisons only; requires a baseline for this browser/platform
+.venv/bin/python -m pytest -m visual -v
+
 # List available node IDs, including parameterized cases
 .venv/bin/python -m pytest --collect-only -q
 
@@ -41,6 +52,16 @@ The suite accesses the live public demo at `https://www.saucedemo.com`. It uses 
 ```
 
 Use a quoted node ID copied from `--collect-only` to select one parameter variation. In PyCharm, select this project's `.venv` interpreter and run the desired pytest file or function. Tests are executable files under `tests/`; files under `pages/` are reusable objects, not test entry points.
+
+## GitHub Actions
+
+The `Playwright tests` workflow runs functional tests on pushes to `main`, pull requests targeting `main`, and manual runs from the repository's **Actions** tab. It uses Python 3.12 and the official Playwright `v1.63.0-noble` Linux container, following [Playwright's CI guidance](https://playwright.dev/python/docs/ci). Keep the container version in both workflows aligned with `requirements.txt` when upgrading Playwright.
+
+Download `functional-results` from a run's **Artifacts** section for JUnit XML, evidence captures, and failure screenshots/traces. Artifacts are retained for 14 days, including when tests fail. Open a downloaded trace with `.venv/bin/python -m playwright show-trace path/to/trace.zip`. Failed tests fail the workflow; there are no automatic retries or baseline updates. A newer run cancels an older run for the same branch/PR. No repository secrets are required for the public demo.
+
+`Record visual baselines` is a separate manual workflow for generating Linux PNG/JSON files in the same container. Download `linux-visual-baselines`, inspect every image, and copy its environment directory into `tests/visual_baselines/` before committing. Recording is not a visual comparison or design approval. This workflow has read-only permissions and cannot commit baseline updates.
+
+This repository delivers automated test results; it has no application to deploy. Branch protection is a separate repository setting: select the CI checks as required checks if you want to block merging failed pull requests.
 
 ## Files by page
 
@@ -59,8 +80,32 @@ Use a quoted node ID copied from `--collect-only` to select one parameter variat
 
 `tests/test_exploration_evidence.py` records the seven-page primary journey with screenshots, accessibility snapshots, URLs, timestamps, browser version, and viewport. Dynamic-page tests also capture evidence. `tests/conftest.py` supplies fixtures and capture support.
 
+`test_data/products.json` contains the six-product baseline observed on 2026-09-25. Tests load it through `test_data/products.py`; they do not generate expected values from the live page during execution. Shared locators stay in `pages/header.py` and `pages/footer.py`.
+
 ## Reports and limitations
+
+Latest local verification (2026-09-25): **76 passed, 0 skipped in 70.18 seconds**, including normal visual comparisons without baseline updates. Command: `.venv/bin/python -m pytest -q --output artifacts/no-skips --junitxml=artifacts/no-skips.xml`. This supersedes the earlier 64-passed/two-skipped report.
 
 Failure screenshots and traces are saved under `test-results/` by default. Each new run clears its configured Playwright output directory. Use `--output test-results/<run-name>` to keep separate runs. Evidence JSON/PNG files are saved per test even when the evidence-capture tests pass. These screenshots are observations, not approved visual baselines. PDF download checks verify a successful download, filename convention, and PDF signature, not receipt content/layout.
 
-Two cases explicitly skip: checkout boundaries without confirmed rules, and visual approval without an approved baseline. Open-ended exploration and subjective visual review still require a person. See [coverage and verification](docs/automation-coverage.md) for the mapping of every manual script, observed behavior, and remaining gaps.
+The two original skipped placeholders have been replaced with executable observed-baseline checks: five checkout input samples and seven primary-page screenshot comparisons. Single characters, whitespace-only values, surrounding whitespace, Unicode, and 256-character strings currently reach checkout overview. The number 256 is a tested sample, not a documented maximum length. Required empty-field rejection remains covered separately. These tests detect changes in behavior; they do not approve the validation rules or establish that all input lengths/formats work.
+
+## Visual regression baselines
+
+Visual tests compare decoded RGB pixels against files under `tests/visual_baselines/`. Initial images record the observed application; they are not an approved design specification. Baselines are separate for browser version, operating system, architecture, and viewport. Visual tests always launch the bundled browser headless, even when `--headed` is supplied for functional tests, because headed rendering changes fonts and scrollbar dimensions. The visual context fixes 1280×800, scale factor 1, light mode, reduced motion, and en-US locale; capture waits for fonts/images, disables animations, and hides the caret.
+
+Normal runs **fail** for missing baselines, different image dimensions, or any changed pixel. They never silently create/replace expected images. Actual and expected images are saved in the test's output directory; a pixel mismatch also saves `diff.png`. This strict comparison intentionally requires review after browser, platform, font, or UI changes. A matching screenshot does not replace accessibility or usability testing.
+
+To deliberately create or replace baselines after reviewing the application:
+
+```bash
+.venv/bin/python -m pytest -m visual --update-visual-baselines
+# Then verify in a separate run without the update flag:
+.venv/bin/python -m pytest -m visual
+```
+
+Review the image changes and commit the PNG and JSON files together. Baseline-recording runs are setup, not successful comparisons. The implementation uses [Playwright screenshots](https://playwright.dev/python/docs/screenshots) and [Pillow pixel differences](https://pillow.readthedocs.io/en/stable/reference/ImageChops.html#PIL.ImageChops.difference). `support/visual.py` contains the comparator; `tests/test_visual.py` covers login, inventory, product details, cart, information, overview, and completion. Dynamic catalog pages remain outside the visual baseline suite.
+
+Open-ended exploration, approval of business rules, and subjective design review still require a person. None are reported as automated passes merely because the placeholder skips were replaced.
+
+The local `docs/` folder is intentionally excluded from Git. Empty-cart checkout is marked `observed_baseline`: it currently reaches an empty overview with $0 totals. This detects behavioral changes without claiming that empty checkout is the intended business rule. The test cancels at overview and does not test finishing an empty order. About navigation is checked with the external destination response stubbed; social links are checked by URL, not by visiting them. These checks do not validate external site availability or content.

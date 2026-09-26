@@ -12,6 +12,8 @@ class CartPage(BasePage):
         self.names = self.items.get_by_test_id("inventory-item-name")
         self.checkout_button = page.get_by_test_id("checkout")
         self.continue_button = page.get_by_test_id("continue-shopping")
+        self.quantity_label = page.get_by_test_id("cart-quantity-label")
+        self.description_label = page.get_by_test_id("cart-desc-label")
 
     def expect_loaded(self):
         self.expect_path("cart.html")
@@ -28,6 +30,13 @@ class CartPage(BasePage):
 
     def remove(self, name: str):
         self.item(name).get_by_role("button", name="Remove", exact=True).click()
+
+    def expect_description(self, name: str, description: str):
+        expect(self.item(name).get_by_test_id("inventory-item-desc")).to_have_text(description)
+
+    def expect_labels(self):
+        expect(self.quantity_label).to_have_text("QTY")
+        expect(self.description_label).to_have_text("Description")
 
     def continue_shopping(self):
         self.continue_button.click()

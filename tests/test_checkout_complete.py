@@ -30,3 +30,10 @@ def test_download_order_pdf(checkout_complete, tmp_path):
     assert filename.startswith("swag-labs-order-")
     assert filename.endswith(".pdf")
     assert target.read_bytes().startswith(b"%PDF-")
+
+
+@pytest.mark.p3
+@pytest.mark.coverage_gap("G08")
+@pytest.mark.manual_script("MT-008")
+def test_completion_page_branding_and_footer(checkout_complete):
+    checkout_complete.expect_common_layout()
